@@ -885,7 +885,8 @@ int main(int argc, char *argv[]) {
             FILE *checkpoint_data = boinc_fopen("packpoint.txt", "wb");
 			struct checkpoint_vars data_store;
 			data_store.offset = offset;
-			data_store.elapsed_chkpoint = elapsed_chkpoint + elapsed;
+            data_store.elapsed_chkpoint = elapsed_chkpoint + elapsed;
+            fwrite(&data_store, sizeof(data_store), 1, checkpoint_data);
             fclose(checkpoint_data);
             checkpointTemp = 0;
             #ifdef BOINC
