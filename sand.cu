@@ -772,7 +772,6 @@ void setup(int gpu_device) {
     GPU_ASSERT(cudaPeekAtLastError());
 }
 
-
 time_t elapsed_chkpoint = 0;
 struct checkpoint_vars {
     unsigned long long offset;
