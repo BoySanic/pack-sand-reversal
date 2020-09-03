@@ -136,8 +136,12 @@ using namespace device_intrinsics;
 // This will match the seed 76261196830436 (not pack.png ofc)
 // Double match: 76261206560653 (almost 100% confirmed, sans very last bit of sand in first match)
 // Triple match: 76273693341674 (100% match)
-#define CHUNK_X 6
+__constant__ int CHUNK_X = 6;
+__constant__ int CHUNK_X_2 = 6;
+__constant__ int CHUNK_X_3 = 5;
 #define CHUNK_Z -1
+#define CHUNK_Z_2 -2
+#define CHUNK_Z_3 -1
 
 #define INNER_X_START 4
 #define INNER_Z_START 0
@@ -152,8 +156,7 @@ __constant__ double LocalNoise2D[INNER_Z_END - INNER_Z_START + 1][INNER_X_END - 
 #define EARLY_RETURN (INNER_Z_END * 16 + INNER_X_END)
 
 
-#define CHUNK_X_2 6
-#define CHUNK_Z_2 -2
+
 
 #define INNER_X_START_2 0
 #define INNER_Z_START_2 6
@@ -174,8 +177,7 @@ __constant__ uint8_t DIRT_HEIGHT_2D_2[INNER_Z_END_2 - INNER_Z_START_2 + 1][INNER
 __constant__ double LocalNoise2D_2[INNER_Z_END_2 - INNER_Z_START_2 + 1][INNER_X_END_2 - INNER_X_START_2 + 1];
 
 
-#define CHUNK_X_3 5
-#define CHUNK_Z_3 -1
+
 
 #define INNER_X_START_3 4
 #define INNER_Z_START_3 0
@@ -783,6 +785,10 @@ int main(int argc, char *argv[]) {
     uint64_t START;
     uint64_t offsetStart = 0;
     uint64_t COUNT;
+    int x = 0;
+    int chunkxCPU = 6;
+    int chunkxCPU2 = 6;
+    int chunkxCPU3 = 5;
 	#ifdef BOINC
     BOINC_OPTIONS options;
     boinc_options_defaults(options);
@@ -795,12 +801,25 @@ int main(int argc, char *argv[]) {
 			gpu_device = atoi(argv[i + 1]);
 		} else if (strcmp(param, "-s") == 0 || strcmp(param, "--start") == 0) {
 			sscanf(argv[i + 1], "%llu", &START);
-		} else if (strcmp(param, "-e") == 0 || strcmp(param, "--count") == 0) {
+		} else if (strcmp(param, "-c") == 0 || strcmp(param, "--count") == 0) {
 			sscanf(argv[i + 1], "%llu", &COUNT);
-		} else {
+        } else if (strcmp(param, "-x") == 0 || strcmp(param, "--x-coordinate")){
+            sscanf(argv[i + 1], "%i", &x);
+        } 
+        else {
 			fprintf(stderr,"Unknown parameter: %s\n", param);
 		}
     }
+    x = (x>>4) - 7;
+    chunkxCPU += x;
+    chunkxCPU2 += x;
+    chunkxCPU3 += x;
+    GPU_ASSERT(cudaMemcpyToSymbol(CHUNK_X, &chunkxCPU, sizeof(CHUNK_X)));
+    GPU_ASSERT(cudaPeekAtLastError());
+    GPU_ASSERT(cudaMemcpyToSymbol(CHUNK_X_2, &chunkxCPU2, sizeof(CHUNK_X_2)));
+    GPU_ASSERT(cudaPeekAtLastError());
+    GPU_ASSERT(cudaMemcpyToSymbol(CHUNK_X_3, &chunkxCPU3, sizeof(CHUNK_X_3)));
+    GPU_ASSERT(cudaPeekAtLastError());
     FILE *checkpoint_data = boinc_fopen("packpoint.txt", "rb");
 
     if(!checkpoint_data){
