@@ -785,7 +785,7 @@ int main(int argc, char *argv[]) {
     uint64_t START;
     uint64_t offsetStart = 0;
     uint64_t COUNT;
-    int x = 0;
+    int x = 116;
     int chunkxCPU = 6;
     int chunkxCPU2 = 6;
     int chunkxCPU3 = 5;
@@ -803,7 +803,7 @@ int main(int argc, char *argv[]) {
 			sscanf(argv[i + 1], "%llu", &START);
 		} else if (strcmp(param, "-c") == 0 || strcmp(param, "--count") == 0) {
 			sscanf(argv[i + 1], "%llu", &COUNT);
-        } else if (strcmp(param, "-x") == 0 || strcmp(param, "--x-coordinate")){
+        } else if (strcmp(param, "-x") == 0){
             sscanf(argv[i + 1], "%i", &x);
         } 
         else {
